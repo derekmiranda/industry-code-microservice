@@ -1,7 +1,7 @@
 {
   "name": "huckleberry",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "main.js",
   "author": "Derek Miranda <derek.miranda.1992@gmail.com>",
   "license": "MIT",
   "dependencies": {
