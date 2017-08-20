@@ -6,9 +6,9 @@ fs.readFile(__dirname + '/parsedPDF.json', (err, dataStr) => {
   const data = JSON.parse(dataStr);
   const values = getFlatArrOfValues(data);
   const multilineStart = values.findIndex(
-    value => typeof value === 'string' && value.includes('cial Inseminati')
+    value => typeof value === 'string' && value.includes('Aerosol')
   );
-  const end = multilineStart + 10;
+  const end = multilineStart + 13;
   console.log(values.slice(multilineStart, end));
   // const industryCodes = blocksIntoIndustryCodes(blocks);
 })
@@ -38,7 +38,6 @@ function reduceTextObjsToValues(textObjs) {
       return strArr;
     }, [])
     .map(decodeURI)
-    .map(str => isNaN(str) ? str : Number(str));
   return values;
 }
 
@@ -46,23 +45,22 @@ function extractValueFromTextObj(textObj) {
   return textObj.R[0].T;
 }
 
-const fields = [
-  'ISO_Description',
-  'ISO_CGL',
-  'SIC',
-  'NAICS',
-  'generalDescription',
-  'NCCI',
-  'CA_WC',
-  'DE_WC',
-  'MI_WC',
-  'NJ_WC',
-  'NY_WC',
-  'PA_WC',
-  'TX_WC',
-]
-
 function blocksIntoIndustryCodes(blocks) {
+  const fields = [
+    'ISO_Description',
+    'ISO_CGL',
+    'SIC',
+    'NAICS',
+    'generalDescription',
+    'NCCI',
+    'CA_WC',
+    'DE_WC',
+    'MI_WC',
+    'NJ_WC',
+    'NY_WC',
+    'PA_WC',
+    'TX_WC',
+  ]
   const rows = _.chunk(blocks, fields.length);
   const industryCodeObjs = rows.map((row) => {
     const codeObj = row.reduce((accumObj, value, i) => {
