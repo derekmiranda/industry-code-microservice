@@ -74,7 +74,7 @@ function getGeneralCodes (data, fields, fieldCutoff) {
   });
 
   const generalFields = fields.slice(0, fieldCutoff);
-  const generalCodeValueObjs = generalCodeRows.map(row => mapRowValuesToFields(row, fields));
+  const generalCodeValueObjs = generalCodeRows.map(row => mapRowValuesToFields(row, generalFields));
 
   return generalCodeValueObjs;
 }
@@ -93,11 +93,15 @@ function getGeneralCodes (data, fields, fieldCutoff) {
 exportObj.getSpecificCodes = getSpecificCodes;
 function getSpecificCodes (data, fields, fieldCutoff) {
   const visualRows = getVisualRows(data);
-  const specificCodes = visualRows.map((visualRow) => {
+  const specificCodeRows = visualRows.map((visualRow) => {
     const specificFieldsLength = fields.length - fieldCutoff;
     return visualRow.slice(-specificFieldsLength);
   });
-  return specificCodes;
+  
+  const specificFields = fields.slice(fieldCutoff);
+  const specificCodeValueObjs = specificCodeRows.map(row => mapRowValuesToFields(row, specificFields));
+
+  return specificCodeValueObjs;
 }
 
 // maps arrays of tabular values to corresponding fields w/in an object

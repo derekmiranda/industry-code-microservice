@@ -12,6 +12,10 @@ fs.readFile(__dirname + '/parsedPDF.json', (err, dataStr) => {
   const { fields, fieldCutoff } = parsingConfig; 
 
   const data = JSON.parse(dataStr);
-  const generalCodes = getGeneralCodes(data, fields, fieldCutoff);
-  console.log(generalCodes.slice(0, 10));
+
+  // const generalCodes = getGeneralCodes(data, fields, fieldCutoff);
+  // console.log(generalCodes.slice(0, 10));
+
+  const specificCodes = getSpecificCodes(data, fields, fieldCutoff);
+  console.log(specificCodes.slice(0, 10));
 })
