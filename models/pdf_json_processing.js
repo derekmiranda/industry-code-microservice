@@ -1,38 +1,12 @@
-const fs = require('fs');
 const _ = require('lodash');
 
-fs.readFile(__dirname + '/parsedPDF.json', (err, dataStr) => {
-  if (err) throw err;
+const exportObj = {};
 
-  const fields = [
-    'ISO_Description',
-    'ISO_CGL',
-    'SIC',
-    'NAICS',
-    'generalDescription',
-    'NCCI',
-    'CA_WC',
-    'DE_WC',
-    'MI_WC',
-    'NJ_WC',
-    'NY_WC',
-    'PA_WC',
-    'TX_WC',
-  ]
-
-  const data = JSON.parse(dataStr);
-  const values = getRowsOfValues(data);
-  // const multilineStart = values.findIndex(
-  //   value => typeof value === 'string' && value.includes('Amusement Centers')
-  // );
-  // const end = multilineStart + 50;
-  console.log(values.slice(0, 100));
-  // const industryCodes = blocksIntoIndustryCodes(blocks, fields);
-})
-
-function getRowsOfValues(data) {
+// not the table rows but the visual rows
+// when scanning from left-to-right, down the page
+exportObj.getVisualRows = function(data) {
   const rowsByPage = data.formImage.Pages.map((page) => {
-    const pageBlockValues = reduceTextObjsToRows(page.Texts);
+    const pageBlockValues = reduceTextObjsToRows(page.Texts)
     return pageBlockValues;
   });
   const allValues = _.flatten(rowsByPage)
@@ -41,6 +15,8 @@ function getRowsOfValues(data) {
 
 function reduceTextObjsToRows(textObjs) {
   const rowsOfValues = textObjs
+    // slicing off first which is a row for headers
+    .slice(1)
     .reduce((rowArr, textObj, i, origArr) => {
       const encodedValue = extractValueFromTextObj(textObj);
       const value = decodeURI(encodedValue);
@@ -74,19 +50,28 @@ function extractValueFromTextObj(textObj) {
   return textObj.R[0].T;
 }
 
-function blocksIntoIndustryCodes(blocks, fields) {
-  const industryCodeObjs = rows.map((row) => {
-    const codeObj = row.reduce((accumObj, value, i) => {
-      const field = fields[i];
-      accumObj[field] = value;
-      return accumObj;
-    }, {});
-    return codeObj;
+exportObj.getGeneralCodes = function (visualRows, fields, fieldCutoff) {
+  const visualRowsWithGeneralCodes = visualRows.filter((visualRow) => {
+    return visualRow.length === fields.length;
   });
-  return industryCodeObjs;
+
+  const generalCodes = visualRowsWithGeneralCodes.map((visualRow) => {
+    return visualRow.slice(0, fieldCutoff);
+  });
+
+  return generalCodes;
 }
 
-module.exports = {
-  getRowsOfValues,
-  blocksIntoIndustryCodes,
-}
+// function blocksIntoIndustryCodes(blocks, fields) {
+//   const industryCodeObjs = rows.map((row) => {
+//     const codeObj = row.reduce((accumObj, value, i) => {
+//       const field = fields[i];
+//       accumObj[field] = value;
+//       return accumObj;
+//     }, {});
+//     return codeObj;
+//   });
+//   return industryCodeObjs;
+// }
+
+module.exports = exportObj;
