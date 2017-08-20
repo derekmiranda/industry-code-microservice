@@ -4,9 +4,10 @@ const exportObj = {};
 
 // not the table rows but the visual rows
 // when scanning from left-to-right, down the page
-exportObj.getVisualRows = function(data) {
+exportObj.getVisualRows = getVisualRows;
+function getVisualRows(data) {
   const rowsByPage = data.formImage.Pages.map((page) => {
-    const pageBlockValues = reduceTextObjsToRows(page.Texts)
+    const pageBlockValues = reduceTextObjsToRows(page.Texts);
     return pageBlockValues;
   });
   const allValues = _.flatten(rowsByPage)
@@ -50,37 +51,63 @@ function extractValueFromTextObj(textObj) {
   return textObj.R[0].T;
 }
 
-exportObj.getGeneralCodes = function (visualRows, fields, fieldCutoff) {
+/**
+ * GeneralCode:
+ * {
+ * ISO_Description: string,
+ * ISO_CGL: string,
+ * page: number, // page number
+ * bottomLine_y: number, // used for distinguishing between table rows
+ * }
+ */ 
+exportObj.getGeneralCodes = getGeneralCodes;
+function getGeneralCodes (data, fields, fieldCutoff) {
+  // get generalCodes from visualRows:
+  // [ GeneralCode values: [ISO_Description, ISO_CGL] ]
+  const visualRows = getVisualRows(data);
   const visualRowsWithGeneralCodes = visualRows.filter((visualRow) => {
     return visualRow.length === fields.length;
   });
 
-  const generalCodes = visualRowsWithGeneralCodes.map((visualRow) => {
+  const generalCodeRows = visualRowsWithGeneralCodes.map((visualRow) => {
     return visualRow.slice(0, fieldCutoff);
   });
 
-  return generalCodes;
+  const generalFields = fields.slice(0, fieldCutoff);
+  const generalCodeValueObjs = generalCodeRows.map(row => mapRowValuesToFields(row, fields));
+
+  return generalCodeValueObjs;
 }
 
-exportObj.getSpecificCodes = function (visualRows, fields, fieldCutoff) {
+/**
+ * SpecificCode:
+ * {
+ * SIC: string
+ * NAICS: string
+ * ...
+ * TX_WC: string
+ * page: number, // page number
+ * row_y: number, // used for determining when visual row is the start of a table row
+ * }
+ */ 
+exportObj.getSpecificCodes = getSpecificCodes;
+function getSpecificCodes (data, fields, fieldCutoff) {
+  const visualRows = getVisualRows(data);
   const specificCodes = visualRows.map((visualRow) => {
     const specificFieldsLength = fields.length - fieldCutoff;
     return visualRow.slice(-specificFieldsLength);
   });
-
   return specificCodes;
 }
 
-// function blocksIntoIndustryCodes(blocks, fields) {
-//   const industryCodeObjs = rows.map((row) => {
-//     const codeObj = row.reduce((accumObj, value, i) => {
-//       const field = fields[i];
-//       accumObj[field] = value;
-//       return accumObj;
-//     }, {});
-//     return codeObj;
-//   });
-//   return industryCodeObjs;
-// }
+// maps arrays of tabular values to corresponding fields w/in an object
+function mapRowValuesToFields(values, targetFields) {
+  const rowObj = values.reduce((accum, value, i) => {
+    const targetField = targetFields[i];
+    accum[targetField] = value;
+    return accum;
+  }, {})
+  return rowObj;
+}
 
 module.exports = exportObj;
