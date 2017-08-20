@@ -2,7 +2,7 @@ module.exports = {
   // target distance from table separating line to row just below it
   DIST_FROM_LINE_TO_ROW_BELOW: -0.3,
   // non-header horizontal lines' general observed thickness
-  TARGET_LINE_THICKNESS: 0.5,
+  TARGET_LINE_THICKNESS: 0.05,
   // non-header horizontal lines' general observed length
   TARGET_LINE_LENGTH: 46.5,
   // % margin of error for detecting visual distances
