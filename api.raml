@@ -2,3 +2,28 @@
 title: Industry Codes
 version: v1
 baseUri: /
+
+types:
+  IndustryCode:
+    properties:
+      ISO_Description: string
+      ISO_CGL: number
+      SIC: number
+      NAICS: number
+      generalDescription: number
+      NCCI: number
+      CA_WC: number
+      DE_WC: number
+      MI_WC: number
+      NJ_WC: number
+      NY_WC: number
+      PA_WC: number
+      TX_WC: number
+    example:
+
+resourceTypes:
+
+
+/:
+  get:
+    queryParameters:
