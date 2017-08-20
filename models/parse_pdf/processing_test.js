@@ -1,5 +1,4 @@
 const fs = require('fs');
-const parsingConfig = require('../../config/parsing_config');
 const {
   getVisualRows,
   getGeneralCodes,
@@ -9,13 +8,11 @@ const {
 fs.readFile(__dirname + '/parsedPDF.json', (err, dataStr) => {
   if (err) throw err;
 
-  const { fields, fieldCutoff } = parsingConfig; 
-
   const data = JSON.parse(dataStr);
 
-  // const generalCodes = getGeneralCodes(data, fields, fieldCutoff);
+  // const generalCodes = getGeneralCodes(data);
   // console.log(generalCodes.slice(0, 10));
 
-  const specificCodes = getSpecificCodes(data, fields, fieldCutoff);
+  const specificCodes = getSpecificCodes(data);
   console.log(specificCodes.slice(0, 10));
 })

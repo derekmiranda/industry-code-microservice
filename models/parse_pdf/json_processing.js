@@ -1,4 +1,13 @@
 const _ = require('lodash');
+const parsingConfig = require('../../config/parsing_config');
+
+const {
+  FIELDS,
+  FIELD_CUTOFF,
+  TARGET_LINE_THICKNESS,
+  TARGET_LINE_LENGTH,
+  MARGIN,
+} = parsingConfig;
 
 const exportObj = {};
 
@@ -15,6 +24,8 @@ function getVisualRows(data) {
 }
 
 function reduceTextObjsToRows(textObjs) {
+  const extractValueFromTextObj = textObj => textObj.R[0].T;
+
   const rowsOfValues = textObjs
     .reduce((rowArr, textObj, i, origArr) => {
       const encodedValue = extractValueFromTextObj(textObj);
@@ -47,10 +58,6 @@ function reduceTextObjsToRows(textObjs) {
     .slice(1, -1);
 }
 
-function extractValueFromTextObj(textObj) {
-  return textObj.R[0].T;
-}
-
 /**
  * GeneralCode:
  * {
@@ -59,23 +66,47 @@ function extractValueFromTextObj(textObj) {
  * page: number, // page number
  * bottomLine_y: number, // used for distinguishing between table rows
  * }
- */ 
+ */
 exportObj.getGeneralCodes = getGeneralCodes;
-function getGeneralCodes (data, fields, fieldCutoff) {
-  // get generalCodes from visualRows:
-  // [ GeneralCode values: [ISO_Description, ISO_CGL] ]
+function getGeneralCodes(data) {
+  // 
+  const generalCodeValueObjs = getGeneralCodeValueObjs(data);
+  // const pageAndLineObjs = getPageAndLineObjs(data);
+
+  // merge each value object and page and line object within both arrays
+
+  return generalCodeValueObjs;
+}
+
+// getting table rows' page and bottom line's y-coordinate
+function getPageAndLineObjs(data) {
+  const pages = data.formImage.Pages;
+
+  const pageLineObjs = pages.reduce((accumArr, page, page_i) => {
+    const horizLines = getHorizLinesOfPage(page);
+    const currPageLineObjs = horizLines.map(line => (
+      {
+        bottomLine_y: line.y,
+        page: page_i,
+      }
+    ));
+    return accumArr.concat(currPageLineObjs);
+  }, []);
+  return pageLineObjs;
+}
+
+function getGeneralCodeValueObjs(data) {
   const visualRows = getVisualRows(data);
   const visualRowsWithGeneralCodes = visualRows.filter((visualRow) => {
-    return visualRow.length === fields.length;
+    return visualRow.length === FIELDS.length;
   });
 
   const generalCodeRows = visualRowsWithGeneralCodes.map((visualRow) => {
-    return visualRow.slice(0, fieldCutoff);
+    return visualRow.slice(0, FIELD_CUTOFF);
   });
 
-  const generalFields = fields.slice(0, fieldCutoff);
+  const generalFields = FIELDS.slice(0, FIELD_CUTOFF);
   const generalCodeValueObjs = generalCodeRows.map(row => mapRowValuesToFields(row, generalFields));
-
   return generalCodeValueObjs;
 }
 
@@ -89,20 +120,28 @@ function getGeneralCodes (data, fields, fieldCutoff) {
  * page: number, // page number
  * row_y: number, // used for determining when visual row is the start of a table row
  * }
- */ 
+ */
 exportObj.getSpecificCodes = getSpecificCodes;
-function getSpecificCodes (data, fields, fieldCutoff) {
+function getSpecificCodes(data) {
+  const specificCodeValueObjs = getSpecificCodeValueObjs(data);
+  return specificCodeValueObjs;
+}
+
+function getSpecificCodeValueObjs(data) {
   const visualRows = getVisualRows(data);
+
+  // map table values to fields
   const specificCodeRows = visualRows.map((visualRow) => {
-    const specificFieldsLength = fields.length - fieldCutoff;
+    const specificFieldsLength = FIELDS.length - FIELD_CUTOFF;
     return visualRow.slice(-specificFieldsLength);
   });
-  
-  const specificFields = fields.slice(fieldCutoff);
+
+  const specificFields = FIELDS.slice(FIELD_CUTOFF);
   const specificCodeValueObjs = specificCodeRows.map(row => mapRowValuesToFields(row, specificFields));
 
   return specificCodeValueObjs;
 }
+
 
 // maps arrays of tabular values to corresponding fields w/in an object
 function mapRowValuesToFields(values, targetFields) {
@@ -112,6 +151,29 @@ function mapRowValuesToFields(values, targetFields) {
     return accum;
   }, {})
   return rowObj;
+}
+
+function getHorizLinesOfPage(page) {
+  const fills = page.Fills;
+
+  // horizontal lines that aren't surrounding table header
+  const horizontalLines = fills.filter(forHorizLines);
+  return horizontalLines;
+}
+
+function forHorizLines(fill) {
+  const calcPercentDiff = (targetVal, val) => {
+    const absDiff = Math.abs(targetVal - targetThickness);
+    const percentDiff = absDiff / targetVal;
+    return percentDiff;
+  }
+
+  const thickness = fill.h;
+  const length = fill.w;
+  return (
+    Math.abs(TARGET_LINE_THICKNESS, thickness) <= margin &&
+    Math.abs(TARGET_LINE_LENGTH, length) <= margin
+  );
 }
 
 module.exports = exportObj;

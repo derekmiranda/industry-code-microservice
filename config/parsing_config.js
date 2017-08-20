@@ -1,10 +1,14 @@
 module.exports = {
   // target distance from table separating line to row just below it
-  distFromLineToRowBelow: -0.3,
-  // margin of error
-  distMargin: 0.4,
+  DIST_FROM_LINE_TO_ROW_BELOW: -0.3,
+  // non-header horizontal lines' general observed thickness
+  TARGET_LINE_THICKNESS: 0.5,
+  // non-header horizontal lines' general observed length
+  TARGET_LINE_LENGTH: 46.5,
+  // % margin of error for detecting visual distances
+  MARGIN: 0.5,
   // column titles
-  fields: [
+  FIELDS: [
     'ISO_Description',
     'ISO_CGL',
     'SIC',
@@ -20,5 +24,5 @@ module.exports = {
     'TX_WC',
   ],
   // fields index that begins sequence of insurance-specific fields
-  fieldCutoff: 2,
+  FIELD_CUTOFF: 2,
 }
