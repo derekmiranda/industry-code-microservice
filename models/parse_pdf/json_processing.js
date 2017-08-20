@@ -13,20 +13,21 @@ const exportObj = {};
 
 // not the table rows but the visual rows
 // when scanning from left-to-right, down the page
-exportObj.getVisualRows = getVisualRows;
-function getVisualRows(data) {
+exportObj.getVisualRowsByPage = getVisualRowsByPage;
+function getVisualRowsByPage(data) {
   const rowsByPage = data.formImage.Pages.map((page) => {
     const pageBlockValues = reduceTextObjsToRows(page.Texts);
     return pageBlockValues;
   });
-  const allValues = _.flatten(rowsByPage)
-  return allValues;
+  return rowsByPage;
 }
 
 function reduceTextObjsToRows(textObjs) {
   const extractValueFromTextObj = textObj => textObj.R[0].T;
 
   const rowsOfValues = textObjs
+    // put text values into correct place in row array
+    // while also putting together strings split across multiple lines
     .reduce((rowArr, textObj, i, origArr) => {
       const encodedValue = extractValueFromTextObj(textObj);
       const value = decodeURI(encodedValue);
@@ -69,13 +70,23 @@ function reduceTextObjsToRows(textObjs) {
  */
 exportObj.getGeneralCodes = getGeneralCodes;
 function getGeneralCodes(data) {
-  // 
+  const visualRowsByPage = getVisualRowsByPage(data);
+  // const generalCodeObjs = visualRowsByPage.map(visualRowsIntoGeneralCodeObjs)
+  return visualRowsByPage;
+}
+
+function visualRowsIntoGeneralCodeObjs(visualRows) {
+  // array of objs of tabular values mapped to columns
   const generalCodeValueObjs = getGeneralCodeValueObjs(data);
-  // const pageAndLineObjs = getPageAndLineObjs(data);
-
+  // array of page and table row's bottom line y-coordinate metadata
+  const pageAndLineObjs = getPageAndLineObjs(data);
   // merge each value object and page and line object within both arrays
-
-  return generalCodeValueObjs;
+  const mergedObjs = generalCodeValueObjs.map((valueObj, i) => {
+    const pageAndLineObj = pageAndLineObjs[i];
+    const merged = {};
+    return Object.assign(merged, valueObj, pageAndLineObj);
+  })
+  return mergedObjs;
 }
 
 // getting table rows' page and bottom line's y-coordinate
@@ -95,8 +106,7 @@ function getPageAndLineObjs(data) {
   return pageLineObjs;
 }
 
-function getGeneralCodeValueObjs(data) {
-  const visualRows = getVisualRows(data);
+function getGeneralCodeValueObjs(visualRows) {
   const visualRowsWithGeneralCodes = visualRows.filter((visualRow) => {
     return visualRow.length === FIELDS.length;
   });
@@ -128,7 +138,7 @@ function getSpecificCodes(data) {
 }
 
 function getSpecificCodeValueObjs(data) {
-  const visualRows = getVisualRows(data);
+  const visualRows = getVisualRowsByPage(data);
 
   // map table values to fields
   const specificCodeRows = visualRows.map((visualRow) => {
@@ -163,17 +173,18 @@ function getHorizLinesOfPage(page) {
 
 function forHorizLines(fill) {
   const calcPercentDiff = (targetVal, val) => {
-    const absDiff = Math.abs(targetVal - targetThickness);
+    const absDiff = Math.abs(targetVal - val);
     const percentDiff = absDiff / targetVal;
     return percentDiff;
   }
 
   const thickness = fill.h;
   const length = fill.w;
-  return (
-    calcPercentDiff(TARGET_LINE_THICKNESS, thickness) <= margin &&
-    calcPercentDiff(TARGET_LINE_LENGTH, length) <= margin
+  const isHorizLine = (
+    calcPercentDiff(TARGET_LINE_THICKNESS, thickness) <= MARGIN &&
+    calcPercentDiff(TARGET_LINE_LENGTH, length) <= MARGIN
   );
+  return isHorizLine;
 }
 
 module.exports = exportObj;
