@@ -15,8 +15,6 @@ exportObj.getVisualRows = function(data) {
 
 function reduceTextObjsToRows(textObjs) {
   const rowsOfValues = textObjs
-    // slicing off first which is a row for headers
-    .slice(1)
     .reduce((rowArr, textObj, i, origArr) => {
       const encodedValue = extractValueFromTextObj(textObj);
       const value = decodeURI(encodedValue);
@@ -43,7 +41,9 @@ function reduceTextObjsToRows(textObjs) {
       }
       return rowArr;
     }, [[]])
-  return rowsOfValues;
+  return rowsOfValues
+    // slicing off headers and footers
+    .slice(1, -1);
 }
 
 function extractValueFromTextObj(textObj) {
@@ -60,6 +60,15 @@ exportObj.getGeneralCodes = function (visualRows, fields, fieldCutoff) {
   });
 
   return generalCodes;
+}
+
+exportObj.getSpecificCodes = function (visualRows, fields, fieldCutoff) {
+  const specificCodes = visualRows.map((visualRow) => {
+    const specificFieldsLength = fields.length - fieldCutoff;
+    return visualRow.slice(-specificFieldsLength);
+  });
+
+  return specificCodes;
 }
 
 // function blocksIntoIndustryCodes(blocks, fields) {
