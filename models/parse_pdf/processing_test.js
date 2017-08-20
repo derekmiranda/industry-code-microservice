@@ -1,10 +1,10 @@
 const fs = require('fs');
-const parsingConfig = require('./parsingConfig');
+const parsingConfig = require('../../config/parsing_config');
 const {
   getVisualRows,
   getGeneralCodes,
   getSpecificCodes
-} = require('.');
+} = require('./json_processing');
 
 fs.readFile(__dirname + '/parsedPDF.json', (err, dataStr) => {
   if (err) throw err;
