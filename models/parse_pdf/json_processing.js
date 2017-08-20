@@ -171,8 +171,8 @@ function forHorizLines(fill) {
   const thickness = fill.h;
   const length = fill.w;
   return (
-    Math.abs(TARGET_LINE_THICKNESS, thickness) <= margin &&
-    Math.abs(TARGET_LINE_LENGTH, length) <= margin
+    calcPercentDiff(TARGET_LINE_THICKNESS, thickness) <= margin &&
+    calcPercentDiff(TARGET_LINE_LENGTH, length) <= margin
   );
 }
 
