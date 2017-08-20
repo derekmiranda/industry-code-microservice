@@ -4,7 +4,7 @@ const PDFParser = require('pdf2json');
 
 const resolve = filepath => path.resolve(__dirname, filepath);
 
-const pdfFile = resolve("./fastcompclasscodecrossreferenceguide.pdf");
+const pdfFile = resolve("./class_code_ref.pdf");
 const targetJSON = resolve("./parsedPDF.json");
 const pdfParser = new PDFParser();
 
