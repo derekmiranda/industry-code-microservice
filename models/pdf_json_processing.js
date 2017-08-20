@@ -1,25 +1,49 @@
 const fs = require('fs');
 const _ = require('lodash');
 
-fs.readFile('./parsedPDF.json', (err, dataStr) => {
+fs.readFile(__dirname + '/parsedPDF.json', (err, dataStr) => {
+  if (err) throw err;
   const data = JSON.parse(dataStr);
-  const blocks = getTextBlocks(data);
-  const industryCodes = blocksIntoIndustryCodes(blocks);
-  console.log(industryCodes);
+  const values = getFlatArrOfValues(data);
+  const multilineStart = values.findIndex(
+    value => typeof value === 'string' && value.includes('cial Inseminati')
+  );
+  const end = multilineStart + 10;
+  console.log(values.slice(multilineStart, end));
+  // const industryCodes = blocksIntoIndustryCodes(blocks);
 })
 
-function getTextBlocks(data) {
-  const textBlocksByPage = data.formImage.Pages.map((page) => {
-    const pageTextRuns = page.Texts.map((text) => text.R);
-    const pageBlocks = _.flatten(pageTextRuns)
-    const pageBlockStrs = pageBlocks
-      .map(block => block.T)
-      .map(decodeURI)
-      .map(str => isNaN(str) ? str : Number(str))
-    return pageBlockStrs;
+function getFlatArrOfValues(data) {
+  const valuesByPage = data.formImage.Pages.map((page) => {
+    const pageBlockValues = reduceTextObjsToValues(page.Texts);
+    return pageBlockValues;
   });
-  const allTextBlocks = _.flatten(textBlocksByPage)
-  return allTextBlocks;
+  const allValues = _.flatten(valuesByPage)
+  return allValues;
+}
+
+function reduceTextObjsToValues(textObjs) {
+  const values = textObjs
+    .reduce((strArr, textObj, i, origArr) => {
+      const value = extractValueFromTextObj(textObj);
+      const prevTextObj = origArr[i-1];
+      // if current text object has same x-coord as previous text object
+      // means that current text object is new line w/in same cell
+      if (i > 0 && prevTextObj && textObj.x === prevTextObj.x) {
+        // so append current text object's value to prev value
+        strArr[strArr.length - 1] += value;
+      } else {
+        strArr.push(value);
+      }
+      return strArr;
+    }, [])
+    .map(decodeURI)
+    .map(str => isNaN(str) ? str : Number(str));
+  return values;
+}
+
+function extractValueFromTextObj(textObj) {
+  return textObj.R[0].T;
 }
 
 const fields = [
@@ -52,6 +76,6 @@ function blocksIntoIndustryCodes(blocks) {
 }
 
 module.exports = {
-  getTextBlocks,
+  getFlatArrOfValues,
   blocksIntoIndustryCodes,
 }
