@@ -7,6 +7,7 @@ const port = process.env.PORT || '3000';
 parsePDFPromise.then(main);
 
 function main(pdfData) {
+  console.log(pdfData)
   app.get('/ncci/:value', createDataFetchingMiddleware(pdfData, 'NCCI'));
   app.get('/naics/:value', createDataFetchingMiddleware(pdfData, 'NAICS'));
   app.get('/ca_wc/:value', createDataFetchingMiddleware(pdfData, 'CA_WC'));
@@ -19,8 +20,8 @@ function main(pdfData) {
 function createDataFetchingMiddleware(data, field) {
   return function (req, res) {
     const codes = getCodesByField(data, field, req.params.value);
-    res.set('Content-Type', 'application/json');    
-    res.send(codes);
+    res.header('Content-Type', 'application/json');    
+    res.send(JSON.stringify(codes, null, 4));
   }
 }
 

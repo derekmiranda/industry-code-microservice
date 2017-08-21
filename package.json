@@ -9,5 +9,8 @@
     "lodash": "^4.17.4",
     "pdf2json": "^1.1.7",
     "sequelize": "^4.6.0"
+  },
+  "scripts": {
+    "start": "node main"
   }
 }

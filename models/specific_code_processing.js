@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const { getVisualRowsByPage, mapRowValuesToFields, getHorizLinesOfPage } = require('./helpers');
-const parsingConfig = require('../../config/parsing_config');
+const parsingConfig = require('../config/parsing_config');
 
 const {
   FIELDS,

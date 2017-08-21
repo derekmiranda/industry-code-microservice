@@ -14,8 +14,9 @@ const parsePDFPromise = new Promise((resolve, reject) => {
     
     const mergedCodeRows = specificCodes.map((specCode, i) => {
       const targetGenCode = getGeneralCodeForSpecificCode(generalCodes, specCode);
-      resolve(Object.assign(specCode, targetGenCode));
+      return Object.assign(specCode, targetGenCode);
     })
+    resolve(mergedCodeRows);
   })
 })
 
