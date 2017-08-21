@@ -70,43 +70,41 @@ function reduceTextObjsToRows(textObjs) {
  */
 exportObj.getGeneralCodes = getGeneralCodes;
 function getGeneralCodes(data) {
-  const visualRowsByPage = getVisualRowsByPage(data);
-  // const generalCodeObjs = visualRowsByPage.map(visualRowsIntoGeneralCodeObjs)
-  return visualRowsByPage;
-}
-
-function visualRowsIntoGeneralCodeObjs(visualRows) {
   // array of objs of tabular values mapped to columns
-  const generalCodeValueObjs = getGeneralCodeValueObjs(data);
+  const visualRowsByPage = getVisualRowsByPage(data);
+  const generalCodeValueObjsByPage = visualRowsByPage.map(visualRowsToGeneralCodeValueObjs);
+
   // array of page and table row's bottom line y-coordinate metadata
-  const pageAndLineObjs = getPageAndLineObjs(data);
+  const lineYValuesByPage = getLineYValuesByPage(data);
+  
   // merge each value object and page and line object within both arrays
-  const mergedObjs = generalCodeValueObjs.map((valueObj, i) => {
-    const pageAndLineObj = pageAndLineObjs[i];
-    const merged = {};
-    return Object.assign(merged, valueObj, pageAndLineObj);
-  })
+  const mergedObjs = generalCodeValueObjsByPage.reduce((accum, valueObjs, page_i) => {
+    const lineYValues = lineYValuesByPage[page_i];
+    const currMergedObjs = valueObjs.map((valueObj, value_i) => {
+      const newCodeObj = {
+        bottomLine_y: lineYValues[value_i],
+        page: page_i,
+      };
+      return Object.assign(newCodeObj, valueObj);
+    });
+    return accum.concat(currMergedObjs);
+  }, [])
   return mergedObjs;
 }
 
 // getting table rows' page and bottom line's y-coordinate
-function getPageAndLineObjs(data) {
+function getLineYValuesByPage(data) {
   const pages = data.formImage.Pages;
 
-  const pageLineObjs = pages.reduce((accumArr, page, page_i) => {
+  const lineYValuesByPage = pages.map((page) => {
     const horizLines = getHorizLinesOfPage(page);
-    const currPageLineObjs = horizLines.map(line => (
-      {
-        bottomLine_y: line.y,
-        page: page_i,
-      }
-    ));
-    return accumArr.concat(currPageLineObjs);
-  }, []);
-  return pageLineObjs;
+    const currlineYValuesByPage = horizLines.map(line => line.y);
+    return currlineYValuesByPage;
+  });
+  return lineYValuesByPage;
 }
 
-function getGeneralCodeValueObjs(visualRows) {
+function visualRowsToGeneralCodeValueObjs(visualRows) {
   const visualRowsWithGeneralCodes = visualRows.filter((visualRow) => {
     return visualRow.length === FIELDS.length;
   });
