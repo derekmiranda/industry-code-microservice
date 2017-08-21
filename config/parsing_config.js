@@ -22,6 +22,7 @@ module.exports = {
     'NY_WC',
     'PA_WC',
     'TX_WC',
+    'row_y',
   ],
   // fields index that begins sequence of insurance-specific fields
   FIELD_CUTOFF: 2,
