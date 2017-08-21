@@ -1,6 +1,7 @@
 const parsingConfig = require('../../config/parsing_config');
 
 const {
+  DIST_FROM_LINE_TO_ROW_BELOW,
   FIELDS,
   FIELD_CUTOFF,
   TARGET_LINE_THICKNESS,
@@ -87,19 +88,31 @@ function getHorizLinesOfPage(page) {
 }
 
 function forHorizLines(fill) {
-  const calcPercentDiff = (targetVal, val) => {
-    const absDiff = Math.abs(targetVal - val);
-    const percentDiff = absDiff / targetVal;
-    return percentDiff;
-  }
-
   const thickness = fill.h;
   const length = fill.w;
   const isHorizLine = (
-    calcPercentDiff(TARGET_LINE_THICKNESS, thickness) <= MARGIN &&
-    calcPercentDiff(TARGET_LINE_LENGTH, length) <= MARGIN
+    isWithinAcceptableRange(TARGET_LINE_THICKNESS, thickness) &&
+    isWithinAcceptableRange(TARGET_LINE_LENGTH, length)
   );
   return isHorizLine;
+}
+
+function specificCodeInGenCode(genCode, specificCode) {
+  function isSpecificRowBelowGenCode(specificRow_y, genCodeBottom_y) {
+    return isWithinAcceptableRange(DIST_FROM_LINE_TO_ROW_BELOW, specificRow_y - genCodeBottom_y);
+  }
+
+  
+}
+
+function isWithinAcceptableRange(targetVal, val) {
+  return calcPercentDiff(targetVal, val) <= MARGIN;
+}
+
+function calcPercentDiff(targetVal, val) {
+  const absDiff = Math.abs(targetVal - val);
+  const percentDiff = absDiff / targetVal;
+  return percentDiff;
 }
 
 module.exports = exportObj;
