@@ -1,9 +1,6 @@
 const fs = require('fs');
-const {
-  getVisualRows,
-  getGeneralCodes,
-  getSpecificCodes
-} = require('./json_processing');
+const { getGeneralCodes } = require('./general_code_processing');
+// const { getSpecificCodes } = require('./specific_code_processing');
 
 fs.readFile(__dirname + '/parsedPDF.json', (err, dataStr) => {
   if (err) throw err;
