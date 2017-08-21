@@ -43,13 +43,22 @@ function reduceTextObjsToRows(textObjs) {
         // if current text obj has an x value less than prev,
         // means we've gone to a new row
         if (prevTextObj && textObj.x < prevTextObj.x) {
+          // end the row with the row's y-coordinate
+          const currStrArr = rowArr[rowArr.length - 1];
+          currStrArr.push(prevTextObj.y);
           // since we've gone to a new row
           // we'll add a new sub-array to the accumulating array
           rowArr.push([]);
         }
         const lastStrArr = rowArr[rowArr.length - 1];
         lastStrArr.push(value);
+        
+        // push last row_y to string array if at last textObj
+        if (i === origArr.length - 1) {
+          lastStrArr.push(textObj.y);
+        }
       }
+
       return rowArr;
     }, [[]])
   return rowsOfValues
