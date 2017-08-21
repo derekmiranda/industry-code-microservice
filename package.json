@@ -11,6 +11,10 @@
     "sequelize": "^4.6.0"
   },
   "scripts": {
-    "start": "node main"
+    "start": "node main",
+    "test": "mocha"
+  },
+  "devDependencies": {
+    "mocha": "^3.5.0"
   }
 }
