@@ -16,6 +16,7 @@ const exportObj = {};
  * {
  * SIC: string
  * NAICS: string
+ * generalDescription: string
  * ...
  * TX_WC: string
  * page: number, // page number
