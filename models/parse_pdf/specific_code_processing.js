@@ -1,3 +1,15 @@
+const { getVisualRowsByPage, mapRowValuesToFields, getHorizLinesOfPage } = require('./helpers');
+const parsingConfig = require('../../config/parsing_config');
+
+const {
+  FIELDS,
+  FIELD_CUTOFF,
+  TARGET_LINE_THICKNESS,
+  TARGET_LINE_LENGTH,
+  MARGIN,
+} = parsingConfig;
+const exportObj = {};
+
 /**
  * SpecificCode:
  * {
@@ -11,13 +23,13 @@
  */
 exportObj.getSpecificCodes = getSpecificCodes;
 function getSpecificCodes(data) {
-  const specificCodeValueObjs = getSpecificCodeValueObjs(data);
-  return specificCodeValueObjs;
+  const visualRowsByPage = getVisualRowsByPage(data);
+  // const rowYValuesByPage = getRowYValuesByPage(data);
+  const specificCodeObjs = visualRowsByPage.map(getSpecificCodeObjs);
+  return specificCodeObjs;
 }
 
-function getSpecificCodeValueObjs(data) {
-  const visualRows = getVisualRowsByPage(data);
-
+function getSpecificCodeObjs(visualRows, pageIdx) {
   // map table values to fields
   const specificCodeRows = visualRows.map((visualRow) => {
     const specificFieldsLength = FIELDS.length - FIELD_CUTOFF;
@@ -25,7 +37,14 @@ function getSpecificCodeValueObjs(data) {
   });
 
   const specificFields = FIELDS.slice(FIELD_CUTOFF);
-  const specificCodeValueObjs = specificCodeRows.map(row => mapRowValuesToFields(row, specificFields));
+  const specificCodeObjs = specificCodeRows.map(row => mapRowValuesToFields(row, specificFields));
 
-  return specificCodeValueObjs;
+  // add page property
+  specificCodeObjs.forEach((obj) => {
+    obj.page = pageIdx;
+  });
+
+  return specificCodeObjs;
 }
+
+module.exports = exportObj;
