@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const { getVisualRowsByPage, mapRowValuesToFields, getHorizLinesOfPage } = require('./helpers');
 const parsingConfig = require('../../config/parsing_config');
 
@@ -25,7 +26,8 @@ exportObj.getSpecificCodes = getSpecificCodes;
 function getSpecificCodes(data) {
   const visualRowsByPage = getVisualRowsByPage(data);
   // const rowYValuesByPage = getRowYValuesByPage(data);
-  const specificCodeObjs = visualRowsByPage.map(getSpecificCodeObjs);
+  const specificCodeObjsByPage = visualRowsByPage.map(getSpecificCodeObjs);
+  const specificCodeObjs = _.flatten(specificCodeObjsByPage);
   return specificCodeObjs;
 }
 
