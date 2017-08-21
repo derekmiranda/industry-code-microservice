@@ -1,31 +1,22 @@
-const path = require("path");
-const Sequelize = require("sequelize");
-const env = process.env.NODE_ENV || "development";
-const config = require(path.join(__dirname, '..', 'config', 'config.json'))[env];
+const fs = require('fs');
+const { getGeneralCodes } = require('./general_code_processing');
+const { getSpecificCodes } = require('./specific_code_processing');
+const getGeneralCodeForSpecificCode = require('./getGeneralCodeForSpecificCode');
 
-let sequelize;
-if (process.env.DATABASE_URL) {
-  sequelize = new Sequelize(process.env.DATABASE_URL,config);
-} else {
-  sequelize = new Sequelize(config.database, config.username, config.password, config);
-}
-const db = {};
+const parsePDFPromise = new Promise((resolve, reject) => {
+  fs.readFile(__dirname + '/parsedPDF.json', (err, dataStr) => {
+    if (err) reject(err);
+  
+    const data = JSON.parse(dataStr);
+  
+    const generalCodes = getGeneralCodes(data);
+    const specificCodes = getSpecificCodes(data);
+    
+    const mergedCodeRows = specificCodes.map((specCode, i) => {
+      const targetGenCode = getGeneralCodeForSpecificCode(generalCodes, specCode);
+      resolve(Object.assign(specCode, targetGenCode));
+    })
+  })
+})
 
-[
-  './GeneralCode.js'
-]
-  .forEach(function(file) {
-    const model = sequelize.import(path.join(__dirname, file));
-    db[model.name] = model;
-  });
-
-Object.keys(db).forEach(function(modelName) {
-  if ("associate" in db[modelName]) {
-    db[modelName].associate(db);
-  }
-});
-
-db.sequelize = sequelize;
-db.Sequelize = Sequelize;
-
-module.exports = db;
+module.exports = parsePDFPromise;

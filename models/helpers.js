@@ -1,4 +1,4 @@
-const parsingConfig = require('../../config/parsing_config');
+const parsingConfig = require('../config/parsing_config');
 
 const {
   DIST_FROM_LINE_TO_ROW_BELOW,
@@ -97,12 +97,36 @@ function forHorizLines(fill) {
   return isHorizLine;
 }
 
-function specificCodeInGenCode(genCode, specificCode) {
-  function isSpecificRowBelowGenCode(specificRow_y, genCodeBottom_y) {
-    return isWithinAcceptableRange(DIST_FROM_LINE_TO_ROW_BELOW, specificRow_y - genCodeBottom_y);
-  }
+/**
+ * function for checking whether row's y-value
+ * is below/above table separator line's y-value
+ * need to take into account the way PDF2JSON has calculated the coordinates
+ * with the parsing configuration
+ * 
+ * These are to determine whether a specific code is
+ * within the same tabular row as a general code
+ */
 
-  
+exportObj.isRowBetweenTableLines = isRowBetweenTableLines;
+function isRowBetweenTableLines(
+  row_y, row_page,
+  topLine_y, topLine_page,
+  btmLine_y, btmLine_page
+) {
+  return (
+    isRowBelowTableLine(row_y, row_page, topLine_y, topLine_page) &&
+    isRowAboveTableLine(row_y, row_page, btmLine_y, btmLine_page)
+  )
+}
+
+function isRowAboveTableLine(row_y, row_page, tableLine_y, tableLine_page) {
+  const diff = row_y - tableLine_y;
+  return row_page <= tableLine_page && diff > DIST_FROM_LINE_TO_ROW_BELOW;
+}
+
+function isRowBelowTableLine(row_y, row_page, tableLine_y, tableLine_page) {
+  const diff = row_y - tableLine_y;
+  return row_page >= tableLine_page && diff < DIST_FROM_LINE_TO_ROW_BELOW;
 }
 
 function isWithinAcceptableRange(targetVal, val) {
