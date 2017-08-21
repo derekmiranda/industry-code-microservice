@@ -1,4 +1,4 @@
-# Insurance Code Lookup Microservice #
+# Industry Code Lookup Microservice #
 
 ## Summary ##
 A microservice for looking up codes from a PDF with information on insurance class codes, such as [this one](http://www.fastcomp.com/downloads/fastcompclasscodecrossreferenceguide.pdf). It uses the PDF2JSON library to get text and formatting data from the PDF.
