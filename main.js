@@ -7,7 +7,6 @@ const port = process.env.PORT || '3000';
 parsePDFPromise.then(main);
 
 function main(pdfData) {
-  console.log(pdfData)
   app.get('/ncci/:value', createDataFetchingMiddleware(pdfData, 'NCCI'));
   app.get('/naics/:value', createDataFetchingMiddleware(pdfData, 'NAICS'));
   app.get('/ca_wc/:value', createDataFetchingMiddleware(pdfData, 'CA_WC'));
