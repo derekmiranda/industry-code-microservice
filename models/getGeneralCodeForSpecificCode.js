@@ -16,7 +16,7 @@ function getGeneralCodeForSpecificCode(generalCodes, specCode) {
       specRow_y, specRow_page,
       genTopLine_y, genTopLine_page,
       genBtmLine_y, genBtmLine_page
-    );
+    )
     return res;
   });
   return targetGenCode;
