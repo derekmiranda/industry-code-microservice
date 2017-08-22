@@ -7,16 +7,16 @@ const port = process.env.PORT || '3000';
 parsePDFPromise.then(main);
 
 function main(pdfData) {
-  app.get('/ncci/:value', createDataFetchingMiddleware(pdfData, 'NCCI'));
-  app.get('/naics/:value', createDataFetchingMiddleware(pdfData, 'NAICS'));
-  app.get('/ca_wc/:value', createDataFetchingMiddleware(pdfData, 'CA_WC'));
+  app.get('/ncci/:value', createDataRetrievalMiddleware(pdfData, 'NCCI'));
+  app.get('/naics/:value', createDataRetrievalMiddleware(pdfData, 'NAICS'));
+  app.get('/ca_wc/:value', createDataRetrievalMiddleware(pdfData, 'CA_WC'));
   
   app.listen(port, function () {
     console.log(`Listening on ${port}`)
   })
 }
 
-function createDataFetchingMiddleware(data, field) {
+function createDataRetrievalMiddleware(data, field) {
   return function (req, res) {
     const codes = getCodesByField(data, field, req.params.value);
     res.header('Content-Type', 'application/json');    
