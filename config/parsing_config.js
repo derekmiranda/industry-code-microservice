@@ -1,8 +1,9 @@
 module.exports = {
-  // target distance from table separating line to row just below it
+  // target distance from table separating line to rows just below and above it
   // this is to determine when a row is the first under a table line
   // such that: row_y - tableLine_y = DIST_FROM_LINE_TO_ROW_BELOW (in relative units)
-  DIST_FROM_LINE_TO_ROW_BELOW: -0.3,
+  DIST_FROM_ROW_ABOVE_TO_LINE: -0.9,
+  DIST_FROM_ROW_BELOW_TO_LINE: -0.3,
   // non-header horizontal lines' general observed thickness
   TARGET_LINE_THICKNESS: 0.05,
   // non-header horizontal lines' general observed length
