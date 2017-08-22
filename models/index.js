@@ -1,4 +1,5 @@
 const fs = require('fs');
+const _ = require('lodash');
 const { getGeneralCodes } = require('./general_code_processing');
 const { getSpecificCodes } = require('./specific_code_processing');
 const getGeneralCodeForSpecificCode = require('./getGeneralCodeForSpecificCode');
@@ -25,7 +26,9 @@ const parsePDFPromise = new Promise((resolve, reject) => {
 
     const mergedCodeRows = specificCodes.map((specCode, i) => {
       const targetGenCode = getGeneralCodeForSpecificCode(generalCodes, specCode);
-      return Object.assign(specCode, targetGenCode);
+      const merged = Object.assign(specCode, targetGenCode);
+      const mergedWithoutFormatData = _.omit(merged, ['page', 'bottomLine_y', 'row_y']);
+      return mergedWithoutFormatData;
     })
     resolve(mergedCodeRows);
   })
