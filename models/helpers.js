@@ -1,7 +1,8 @@
 const parsingConfig = require('../config/parsing_config');
 
 const {
-  DIST_FROM_LINE_TO_ROW_BELOW,
+  DIST_FROM_ROW_ABOVE_TO_LINE,
+  DIST_FROM_ROW_BELOW_TO_LINE,
   FIELDS,
   FIELD_CUTOFF,
   TARGET_LINE_THICKNESS,
@@ -119,14 +120,27 @@ function isRowBetweenTableLines(
   )
 }
 
+exportObj.isRowAboveTableLine = isRowAboveTableLine;
 function isRowAboveTableLine(row_y, row_page, tableLine_y, tableLine_page) {
   const diff = row_y - tableLine_y;
-  return row_page <= tableLine_page && diff > DIST_FROM_LINE_TO_ROW_BELOW;
+  if (row_page < tableLine_page) {
+    return true;
+  } else if (row_page === tableLine_page) {
+    return diff <= DIST_FROM_ROW_ABOVE_TO_LINE;
+  }
+  return false;
 }
 
+exportObj.isRowBelowTableLine = isRowBelowTableLine;
 function isRowBelowTableLine(row_y, row_page, tableLine_y, tableLine_page) {
   const diff = row_y - tableLine_y;
-  return row_page >= tableLine_page && diff < DIST_FROM_LINE_TO_ROW_BELOW;
+
+  if (row_page > tableLine_page) {
+    return true;
+  } else if (row_page === tableLine_page) {
+    return diff >= DIST_FROM_ROW_BELOW_TO_LINE;
+  }
+  return false;
 }
 
 function isWithinAcceptableRange(targetVal, val) {
